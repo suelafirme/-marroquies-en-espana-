@@ -10,7 +10,7 @@ on:
       - .github/workflows/android-debug.yml
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   apk:
     runs-on: ubuntu-latest
@@ -56,3 +56,25 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
+
+      - name: Prepare direct APK file
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk Marroquies_en_Espana_Beta.apk
+          sha256sum Marroquies_en_Espana_Beta.apk > Marroquies_en_Espana_Beta.apk.sha256
+
+      - name: Publish public APK on GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="beta-v6-direct"
+          FILE="Marroquies_en_Espana_Beta.apk"
+          HASH="Marroquies_en_Espana_Beta.apk.sha256"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$FILE" "$HASH" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" "$FILE" "$HASH" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title "Marroquíes en España — Android Beta V6" \
+              --notes "Android beta for testing. This is a debug APK (not a production release). Install at your own risk; test account flows before entering personal data.\n\nDirect APK download is in the Assets section." \
+              --prerelease
+          fi
