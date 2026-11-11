@@ -100,7 +100,7 @@ const ROOT=document.getElementById('app');
 const CONFIG=window.MEE_CONFIG||{};
 const DEFAULT_CITIES=['Jerez','Madrid','Barcelona','Sevilla','Valencia','Málaga','Cádiz','Zaragoza','Bilbao','Alicante','Granada','Murcia','Valladolid','Otra ciudad'];
 const K_SESSION='mee_social_v5_session';const K_DEMO='mee_social_v5_preview';
-const isLive=!!(CONFIG.supabaseUrl && CONFIG.publishableKey && new URLSearchParams(location.search).get('mode')==='live');
+const isLive=!!(CONFIG.supabaseUrl && CONFIG.publishableKey && new URLSearchParams(location.search).get('preview')!=='1');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const time=x=>{let d=new Date(x);return Number.isNaN(d.getTime())?'':d.toLocaleString('es-ES',{dateStyle:'short',timeStyle:'short'})};
 const ago=x=>{let v=Math.round((Date.now()-new Date(x).getTime())/60000);return v<2?'دابا':v<60?`منذ ${v} دقيقة`:time(x)};
