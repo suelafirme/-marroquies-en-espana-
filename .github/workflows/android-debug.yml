@@ -1,4 +1,4 @@
-name: Build Android V8 APK
+name: Build Android V8.1 install-fix APK
 on:
   push:
     branches: [main]
@@ -49,32 +49,44 @@ jobs:
           ./gradlew assembleDebug --no-daemon
       - name: Verify APK
         run: test -s android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Verify distinct package ID and APK signature
+        run: |
+          set -euo pipefail
+          APK="android/app/build/outputs/apk/debug/app-debug.apk"
+          AAPT="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
+          SIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+          test -x "$AAPT"
+          test -x "$SIGNER"
+          "$AAPT" dump badging "$APK" | grep -F "name='com.suelafirme.marroquiesenespana.beta'"
+          "$SIGNER" verify --verbose "$APK"
+          unzip -t "$APK" | tail -n 2
+
       - name: Upload installable debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: Marroquies-en-Espana-Premium-V8-debug-APK
+          name: Marroquies-en-Espana-V8.1-install-fix-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
 
       - name: Prepare direct APK file
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk Marroquies_en_Espana_V8.apk
-          sha256sum Marroquies_en_Espana_V8.apk > Marroquies_en_Espana_V8.apk.sha256
+          cp android/app/build/outputs/apk/debug/app-debug.apk Marroquies_en_Espana_V8_1_InstallFix.apk
+          sha256sum Marroquies_en_Espana_V8_1_InstallFix.apk > Marroquies_en_Espana_V8_1_InstallFix.apk.sha256
 
       - name: Publish public APK on GitHub Releases
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          TAG="beta-v8-direct"
-          FILE="Marroquies_en_Espana_V8.apk"
-          HASH="Marroquies_en_Espana_V8.apk.sha256"
+          TAG="beta-v8-1-install-fix"
+          FILE="Marroquies_en_Espana_V8_1_InstallFix.apk"
+          HASH="Marroquies_en_Espana_V8_1_InstallFix.apk.sha256"
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$TAG" "$FILE" "$HASH" --clobber --repo "$GITHUB_REPOSITORY"
           else
             gh release create "$TAG" "$FILE" "$HASH" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-              --title "Marroquíes en España — Android Beta V8" \
+              --title "Marroquíes en España — Android Beta V8.1 Install Fix" \
               --notes "Android beta for testing. This is a debug APK (not a production release). Install at your own risk; test account flows before entering personal data.\n\nDirect APK download is in the Assets section." \
               --prerelease
           fi
