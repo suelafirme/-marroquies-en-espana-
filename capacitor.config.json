@@ -1,0 +1,8 @@
+{
+  "appId": "com.suelafirme.marroquiesenespana",
+  "appName": "Marroquíes en España",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
