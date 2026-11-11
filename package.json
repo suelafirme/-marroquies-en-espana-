@@ -1,0 +1,18 @@
+{
+  "name": "marroquies-en-espana",
+  "version": "6.0.0-beta.1",
+  "private": true,
+  "description": "Moroccan community in Spain — premium web beta and Android preview",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "android:init": "npm run build && npx cap add android",
+    "android:sync": "npm run build && npx cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/core": "8.5.3",
+    "@capacitor/android": "8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3"
+  }
+}
